@@ -1,0 +1,83 @@
+---
+title: "MA1001B_Reto_Pregunta1"
+author: "Rolando Ruiz Martínez"
+date: "2023-10-16"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Leyendo base limpia
+
+```{r}
+library(printr) #para que tablas se impriman en buen formato
+A1=read.csv("basereto.csv",encoding="UTF-8")
+A1$p6_2<-as.character.numeric_version(A1$p6_2)
+```
+
+## Haciendo un histograma comparativo y un gráfico de caja comparativo
+```{r}
+library("ggplot2")
+ggplot(A1, aes(x = edad, colour = p6_2)) + geom_histogram(alpha = 0.4, position = "identity") + labs(x = "Edad", y = "Frecuencia", colour = "Leyó tipo de libros específico") + scale_color_manual(labels = c("Sí", "No"), values = c("firebrick1", "darkblue")) + theme_bw() + theme(legend.position = "bottom") 
+ggplot(A1, aes(x = edad, y=p6_2)) + geom_boxplot(color=c("firebrick1", "darkblue"), fill=c("darkred", "blue"), alpha=0.2,) + labs(x = "Edad", y = "Leyó tipo de libros específico") + scale_y_discrete(labels=c("Sí", "No")) + theme_bw();
+```
+
+## Medidas descriptivas
+```{r}
+tapply(A1$edad,A1$p6_2,summary) #aplica el resumen de medidas descriptivas a la variable edad según la repuesta sí o no de los encuestados
+```
+
+## Medidas descriptivas usando describe
+```{r}
+library(psych)
+#describe(A,omit=TRUE) # describe todas las variables en A con medidas descriptivas desc)
+describeBy(A1,A1$p6_2)
+```
+
+Análisis Inferencial
+Pregunta 1 :  Relacionar Los libros que leyó fueron específicos de alguna materia o profesión con la edad
+
+# Z Test
+
+Hipótesis Propuesta
+miu1 - > mean of y (si)
+miu 2 - > mean of x (No)
+H0 : miu1 = miu2
+H1: miu1 < miu2
+
+```{r}
+library(printr) #para que tablas se impriman en buen formato
+A10=read.csv("basereto.csv",encoding="UTF-8")
+A10$p6_2=as.character.numeric_version(A10$p6_2)
+A10NO=subset(A10,A10$p6_2==2)
+A10SI=subset(A10,A10$p6_2==1)
+#veo que tenemos n´s grande y entonces podría aplicar el teorema de TLC para hacer inferencias de dos medias poblacionales. Si usamos Z con TLC ya no tendríamos que revisar la normalidad.
+library("BSDA")
+sigmaNO=sd(A10NO$edad)
+sigmaSI=sd(A10SI$edad)
+z.test(A10NO$edad,A10SI$edad,sigma.x = sigmaNO,sigma.y = sigmaSI,conf.level=0.95)
+```
+
+pvalue < alfa, se tiene evidencia para rechazar H0.
+
+# Shapiro Test
+
+H0: distribución de variable normal
+H1: distribución de variable no normal
+
+```{r}
+# Prueba de normalidad
+ #Ho La variable sigue distribución normal
+ #Ha La variable no sigue distribucion normal
+shapiro.test(A10NO$edad)
+shapiro.test(A10SI$edad)
+```
+
+## Una alternativa cuando las variables no siguen distribución normal es la prueba ansari.test para la prueba de dos varianzas poblacionales
+
+```{r}
+ansari.test(A10NO$edad, A10SI$edad, conf.level=0.95)
+```
+Se puede inferir que las varianzas posiblemente no sean iguales a un nivel de confianza del 95%.
