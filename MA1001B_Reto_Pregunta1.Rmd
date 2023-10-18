@@ -1,6 +1,6 @@
 ---
 title: "MA1001B_Reto_Pregunta1"
-author: "Rolando Ruiz Martínez"
+author: ""
 date: "2023-10-16"
 output: word_document
 ---
